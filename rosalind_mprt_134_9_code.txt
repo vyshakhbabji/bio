@@ -1,0 +1,71 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Assignment17 {
+
+	public static String callURL(String strURL) {
+		StringBuilder sb = new StringBuilder();
+		URLConnection con = null;
+		InputStreamReader ipStream = null;
+		try {
+			URL url = new URL(strURL);
+			con = url.openConnection();
+			if (con != null)
+				con.setReadTimeout(50000);
+			if (con != null && con.getInputStream() != null) {
+				ipStream = new InputStreamReader(con.getInputStream(),
+						Charset.defaultCharset());
+				BufferedReader br = new BufferedReader(ipStream);
+				if (br != null) {
+					int cp;
+					while ((cp = br.read()) != -1)
+						sb.append((char) cp);
+					br.close();
+				}
+			}
+			ipStream.close();
+		} catch (Exception e) {
+			throw new RuntimeException("Error calling URL:" + strURL, e);
+		}
+		return sb.toString();
+	}
+
+	@SuppressWarnings("resource")
+	public static void main(String[] args) throws FileNotFoundException {
+		Scanner sc = new Scanner(new FileReader(
+				"/home/sulab/Downloads/rosalind_mprt (2).txt"));
+		ArrayList<String> strArr = new ArrayList<String>();
+		while (sc.hasNext())
+			strArr.add(sc.nextLine());
+		int i = 0;
+		while (i < strArr.size()) {
+			String data = callURL("http://www.uniprot.org/uniprot/"
+					+ strArr.get(i) + ".fasta");
+			processData(strArr.get(i).toString(),
+					data.substring(data.indexOf('\n') + 1).replace("\n", ""));
+			i++;
+		}
+	}
+
+	private static void processData(String protien, String data) {
+		String indexes = "";
+		String opStr = "";
+		for (int i = 0; i < data.length(); i++) {
+			if (data.charAt(i) == 'N' && data.charAt(i + 1) != 'P'
+					&& (data.charAt(i + 2) == 'S' || data.charAt(i + 2) == 'T')
+					&& data.charAt(i + 3) != 'P') {
+				indexes = indexes + (i + 1) + " ";
+			}
+		}
+		if (indexes != null && !indexes.equals(""))
+			opStr = opStr + "\n" + protien + "\n" + indexes + "\n";
+		System.out.println(opStr);
+	}
+}

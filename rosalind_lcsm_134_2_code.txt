@@ -1,0 +1,130 @@
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Assignment18a {
+
+	public static int[] checkKPMArr(int[] arr, int num) {
+		int len = arr.length;
+		int counter = 0, i = 0;
+		int[] indexArr = new int[len];
+		while (i < len) {
+			if (arr[i] == num) {
+				indexArr[counter] = i - num + 2;
+				counter++;
+			}
+			i++;
+		}
+		int[] resArr = new int[counter];
+		i = 0;
+		while (i < len) {
+			if (indexArr[i] == 0)
+				break;
+			resArr[i] = indexArr[i];
+			i++;
+		}
+		return resArr;
+	}
+
+	public static void main(String[] args) throws IOException {
+		Scanner s = new Scanner(new FileReader(
+				"/home/sulab/Downloads/rosalind_lcsm (1).txt"));
+		String str = "";
+		int len = 0, m = 2;
+		int maxLen = 0;
+		boolean found = false;
+		while (s.hasNext())
+			str += s.nextLine();
+		String[] seq = str.split(">Rosalind_\\d\\d\\d\\d");
+		String matcher = seq[1];
+		String seqj = seq[2];
+		int lenOfFirstSeq = matcher.length();
+		int lenOfSecSeq = seqj.length();
+		int[][] seqCheckArr = new int[lenOfFirstSeq][lenOfSecSeq];
+		for (int i = 0; i < lenOfFirstSeq; i++)
+			for (int j = 0; j < lenOfSecSeq; j++)
+				if (matcher.charAt(i) == seqj.charAt(j))
+					seqCheckArr[i][j] = 1;
+
+		ArrayList<ArrayList<Integer[]>> lenList = new ArrayList<ArrayList<Integer[]>>();
+		for (int i = 0; i < lenOfFirstSeq; i++) {
+			ArrayList<Integer[]> leng = new ArrayList<Integer[]>();
+			lenList.add(leng);
+		}
+		for (int i = 0; i < lenOfFirstSeq; i++) {
+			for (int j = 0; j < lenOfSecSeq; j++) {
+				if (seqCheckArr[i][j] == 1) {
+					int counter = 1;
+					int a = i + 1, b = j + 1;
+					while (a < lenOfFirstSeq && b < lenOfSecSeq) {
+						if (seqCheckArr[a][b] != 1)
+							break;
+						counter++;
+						a++;
+						b++;
+					}
+					Integer indexArr[] = new Integer[2];
+					indexArr[0] = i;
+					indexArr[1] = j;
+					lenList.get(counter).add(indexArr);
+					if (maxLen < counter)
+						maxLen = counter;
+				}
+			}
+		}
+		len = maxLen;
+		while (len > 0) {
+			ArrayList<Integer[]> aList = lenList.get(len);
+			for (int p = 0; p < aList.size(); p++) {
+				int first = aList.get(p)[0];
+				int sec = aList.get(p)[1];
+				for (; m < seq.length; m++) {
+					String seqss = seq[m];
+					String checker = matcher.substring(first, first + len);
+					int[] nonArr = nonKPMArr(seqss, checker);
+					int[] indexArr = checkKPMArr(nonArr, checker.length());
+
+					if (indexArr.length == 0)
+						break;
+				}
+				if (m == seq.length) {
+					System.out.println(matcher.substring(first, first + len));
+					found = true;
+					break;
+				}
+			}
+			if (found == true)
+				break;
+			len--;
+		}
+	}
+
+	public static int[] nonKPMArr(String s, String t) {
+		int[] arr = new int[s.length()];
+		int[] indexArr = new int[s.length() - 1];
+		int i = 0;
+		int counter = 0;
+		int k = 0;
+		while (i < indexArr.length) {
+			indexArr[i] = i;
+			i++;
+		}
+		while (k < t.length()) {
+			char chr = t.charAt(k);
+			for (i = 0; i < indexArr.length; i++) {
+				if ((indexArr[i] == 0 && k != 0) || indexArr[i] >= s.length())
+					break;
+				if (s.charAt(indexArr[i]) == chr) {
+					arr[indexArr[i]] = k + 1;
+					indexArr[counter] = indexArr[i] + 1;
+					counter++;
+				}
+			}
+			indexArr[counter] = 0;
+			counter = 0;
+			k++;
+		}
+		return arr;
+	}
+}

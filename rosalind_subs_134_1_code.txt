@@ -1,0 +1,28 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Scanner;
+
+
+
+public class Assignment16 {
+
+	public static void main(String[] args) throws FileNotFoundException {
+
+		Scanner scanner = new Scanner(new FileReader("/home/sulab/Downloads/rosalind_subs.txt"));
+		String s  = scanner.nextLine();
+		String compare= scanner.nextLine();
+		int i=0,j=0;
+		LinkedHashSet<Object> set = new LinkedHashSet<>();
+		while(i<s.length()){
+			j=s.indexOf(compare, i)+1;
+			if(j!=0) set.add(j);
+			i++;
+		}
+		Iterator it = set.iterator();
+		while(it.hasNext()) System.out.println(it.next());
+	}
+
+
+}
